@@ -1,0 +1,1804 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>B2B SEO Suite & Keymap AI Studio (Single-File Standalone)</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              200: '#bfdbfe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 and ReactDOM 18 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel Standalone for in-browser JSX parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 5px;
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.25s ease-in-out forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body class="bg-slate-100 text-slate-800 antialiased min-h-screen">
+  <div id="root"></div>
+
+  <!-- Main React Application Script -->
+  <script type="text/babel">
+    const { useState, useMemo, useEffect, useRef } = React;
+
+    // --- EMBEDDED SVG ICON SYSTEM ---
+    const Icon = ({ name, className = "w-4 h-4", size, color }) => {
+      const icons = {
+        sparkles: <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>,
+        search: <><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>,
+        database: <><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/><path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3"/></>,
+        layers: <><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></>,
+        layout: <><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></>,
+        fileText: <><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></>,
+        download: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></>,
+        upload: <><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></>,
+        copy: <><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></>,
+        check: <polyline points="20 6 9 17 4 12"/>,
+        checkCircle: <><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></>,
+        plus: <path d="M5 12h14M12 5v14"/>,
+        trash: <><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></>,
+        edit: <><path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/><path d="m15 5 4 4"/></>,
+        penTool: <path d="m12 19 7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.586 7.586"/>,
+        wand: <path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72ZM14 7l3 3M5 6v4M3 8h4M19 14v4M17 16h4"/>,
+        network: <><rect width="6" height="6" x="16" y="16" rx="1"/><rect width="6" height="6" x="2" y="16" rx="1"/><rect width="6" height="6" x="9" y="2" rx="1"/><path d="M5 16v-3a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v3"/><path d="M12 12V8"/></>,
+        gitFork: <><circle cx="12" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><circle cx="18" cy="6" r="3"/><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9"/><path d="M12 12v3"/></>,
+        link: <><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>,
+        info: <><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></>,
+        helpCircle: <><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></>,
+        refreshCw: <><path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"/><path d="M8 16H3v5"/></>,
+        chevronRight: <polyline points="9 18 15 12 9 6"/>,
+        chevronDown: <polyline points="6 9 12 15 18 9"/>,
+        externalLink: <><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></>,
+        shieldCheck: <><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></>,
+        barChart: <><line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/></>,
+        compass: <><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></>,
+        target: <><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></>,
+      };
+
+      return (
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={className}
+        >
+          {icons[name] || icons.sparkles}
+        </svg>
+      );
+    };
+
+    // --- CLIENT-SIDE TAILORED B2B DATA ENGINE ---
+    // Generates instant, high-grade B2B dataset without requiring any server
+    function generateB2bDataset(seedKeyword, technicalText = '') {
+      const base = (seedKeyword || 'phễu cấp liệu').trim();
+      const titleSeed = base.charAt(0).toUpperCase() + base.slice(1);
+      const slugBase = base
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+
+      // 9D Matrix
+      const matrix = {
+        productVariants: [
+          `${base} tự động`,
+          `${base} inox 304`,
+          `${base} rung định lượng`,
+          `${base} trục vít`,
+          `${base} cho máy đóng gói`,
+          `${base} mini phòng lab`,
+          `${base} chống nghẽn liệu`,
+        ],
+        semanticKeywords: [
+          `hệ thống cấp liệu tự động`,
+          `phễu nạp nguyên liệu vi sinh`,
+          `định lượng nguyên liệu dạng bột hạt`,
+          `băng tải cấp liệu phễu`,
+          `tiêu chuẩn chế tạo máy thực phẩm`,
+        ],
+        specifications: [
+          `dung tích 50L 100L 200L 500L`,
+          `vật liệu inox 304 316L`,
+          `động cơ rung 0.37kW - 1.5kW`,
+          `tủ điện biến tần điều tốc`,
+          `van xả đáy khí nén`,
+        ],
+        painPoints: [
+          `nguyên liệu bị bết dính nghẽn cổ phễu`,
+          `hao hụt nguyên liệu bột khi nạp thủ công`,
+          `chi phí nhân công bốc đổ liệu quá cao`,
+          `thời gian dừng máy dây chuyền kéo dài`,
+          `bụi phát tán gây ô nhiễm nhà xưởng`,
+        ],
+        solutions: [
+          `tích hợp motor rung đầm phá vòm liệu`,
+          `thiết kế góc nghiêng phễu tối ưu 60 độ`,
+          `gắn cảm biến báo mức min max tự động`,
+          `hệ thống thu gom bụi kín khép kín`,
+          `bề mặt đánh bóng gương chống dính`,
+        ],
+        integratedEquipment: [
+          `máy đóng gói dạng túi đứng`,
+          `băng tải nâng trục vít / gầu tải Z`,
+          `máy trộn bột công nghiệp`,
+          `máy cân định lượng điện tử`,
+          `máy chiết rót tự động`,
+        ],
+        industries: [
+          `ngành thực phẩm & bánh kẹo`,
+          `ngành dược phẩm & hóa mỹ phẩm`,
+          `ngành chế biến nông sản hạt điều cà phê`,
+          `ngành nhựa & hạt nhựa tái sinh`,
+          `ngành phân bón & thức ăn chăn nuôi`,
+        ],
+        locations: [
+          `${base} tại TP.HCM`,
+          `${base} Bình Dương`,
+          `${base} Đồng Nai`,
+          `${base} Long An`,
+          `${base} toàn quốc`,
+        ],
+        brands: [
+          `${base} Chế tạo Chí Nhật Từ`,
+          `Xưởng gia công cơ khí chính xác`,
+          `Nhà sản xuất ${base} uy tín`,
+        ],
+      };
+
+      // Keywords list
+      const keywords = [
+        {
+          id: 'kw-1',
+          keyword: base,
+          seedKeyword: base,
+          volume: 2400,
+          kd: 24,
+          cpc: 8500,
+          intent: 'Commercial Investigation',
+          category: 'Biến thể',
+          parentTopic: `Tổng quan ${titleSeed}`,
+          primaryKeyword: base,
+          isPrimary: true,
+          topic: `Giải pháp ${titleSeed}`,
+          pillar: `Hệ thống ${titleSeed} & Dây Chuyền Tự Động`,
+          cluster: `Các loại ${titleSeed} công nghiệp`,
+          isLocal: false,
+          isBrand: false,
+          serpSimilarity: 100,
+          opportunityScore: 98,
+          businessRelevance: 100,
+          funnelStage: 'MOFU',
+          priority: 'P1',
+          dataSource: 'AI ESTIMATE',
+          confidence: 'High',
+          suggestedContentType: 'Pillar Page',
+          suggestedUrl: `/${slugBase}`,
+        },
+        {
+          id: 'kw-2',
+          keyword: `${base} inox 304`,
+          seedKeyword: base,
+          volume: 1600,
+          kd: 20,
+          cpc: 7200,
+          intent: 'Commercial Investigation',
+          category: 'Đặc điểm',
+          parentTopic: `Vật liệu chế tạo`,
+          primaryKeyword: `${base} inox 304`,
+          isPrimary: true,
+          topic: `${titleSeed} Inox 304 chuẩn thực phẩm`,
+          pillar: `Hệ thống ${titleSeed} & Dây Chuyền Tự Động`,
+          cluster: `Vật liệu Inox 304 & Tiêu chuẩn vi sinh`,
+          isLocal: false,
+          isBrand: false,
+          serpSimilarity: 92,
+          opportunityScore: 95,
+          businessRelevance: 98,
+          funnelStage: 'MOFU',
+          priority: 'P1',
+          dataSource: 'AI ESTIMATE',
+          confidence: 'High',
+          suggestedContentType: 'Product Page',
+          suggestedUrl: `/${slugBase}-inox-304`,
+        },
+        {
+          id: 'kw-3',
+          keyword: `báo giá ${base} tại xưởng`,
+          seedKeyword: base,
+          volume: 880,
+          kd: 15,
+          cpc: 9500,
+          intent: 'Transactional',
+          category: 'Brand',
+          parentTopic: `Báo giá & Chi phí`,
+          primaryKeyword: `báo giá ${base}`,
+          isPrimary: true,
+          topic: `Báo giá gia công ${titleSeed}`,
+          pillar: `Báo Giá & Xưởng Chế Tạo Theo Yêu Cầu`,
+          cluster: `Báo giá xưởng chế tạo máy`,
+          isLocal: false,
+          isBrand: false,
+          serpSimilarity: 96,
+          opportunityScore: 96,
+          businessRelevance: 100,
+          funnelStage: 'BOFU',
+          priority: 'P1',
+          dataSource: 'AI ESTIMATE',
+          confidence: 'High',
+          suggestedContentType: 'Pricing Guide',
+          suggestedUrl: `/bao-gia-${slugBase}`,
+        },
+        {
+          id: 'kw-4',
+          keyword: `${base} rung định lượng`,
+          seedKeyword: base,
+          volume: 1200,
+          kd: 18,
+          cpc: 6800,
+          intent: 'Commercial Investigation',
+          category: 'Biến thể',
+          parentTopic: `Nguyên lý định lượng`,
+          primaryKeyword: `${base} rung định lượng`,
+          isPrimary: false,
+          topic: `${titleSeed} Rung Định Lượng Tự Động`,
+          pillar: `Hệ thống ${titleSeed} & Dây Chuyền Tự Động`,
+          cluster: `Các loại ${titleSeed} công nghiệp`,
+          isLocal: false,
+          isBrand: false,
+          serpSimilarity: 88,
+          opportunityScore: 92,
+          businessRelevance: 95,
+          funnelStage: 'MOFU',
+          priority: 'P1',
+          dataSource: 'AI ESTIMATE',
+          confidence: 'High',
+          suggestedContentType: 'Product Page',
+          suggestedUrl: `/${slugBase}-rung-dinh-luong`,
+        },
+        {
+          id: 'kw-5',
+          keyword: `cấu tạo ${base} công nghiệp`,
+          seedKeyword: base,
+          volume: 950,
+          kd: 12,
+          cpc: 4500,
+          intent: 'Informational',
+          category: 'Semantic',
+          parentTopic: `Kiến thức kỹ thuật`,
+          primaryKeyword: `cấu tạo ${base}`,
+          isPrimary: false,
+          topic: `Cấu tạo và nguyên lý ${titleSeed}`,
+          pillar: `Hệ thống ${titleSeed} & Dây Chuyền Tự Động`,
+          cluster: `Cấu tạo cơ khí & Nguyên lý`,
+          isLocal: false,
+          isBrand: false,
+          serpSimilarity: 85,
+          opportunityScore: 89,
+          businessRelevance: 90,
+          funnelStage: 'TOFU',
+          priority: 'P2',
+          dataSource: 'AI ESTIMATE',
+          confidence: 'High',
+          suggestedContentType: 'Technical Guide',
+          suggestedUrl: `/cau-tao-${slugBase}`,
+        },
+        {
+          id: 'kw-6',
+          keyword: `${base} cho máy đóng gói`,
+          seedKeyword: base,
+          volume: 720,
+          kd: 16,
+          cpc: 6100,
+          intent: 'Commercial Investigation',
+          category: 'Thiết bị tích hợp',
+          parentTopic: `Tích hợp dây chuyền`,
+          primaryKeyword: `${base} cho máy đóng gói`,
+          isPrimary: false,
+          topic: `Tích hợp ${titleSeed} máy đóng gói`,
+          pillar: `Hệ thống ${titleSeed} & Dây Chuyền Tự Động`,
+          cluster: `Tích hợp máy đóng gói & Dây chuyền`,
+          isLocal: false,
+          isBrand: false,
+          serpSimilarity: 89,
+          opportunityScore: 90,
+          businessRelevance: 94,
+          funnelStage: 'MOFU',
+          priority: 'P2',
+          dataSource: 'AI ESTIMATE',
+          confidence: 'High',
+          suggestedContentType: 'Solution Page',
+          suggestedUrl: `/${slugBase}-may-dong-goi`,
+        },
+        {
+          id: 'kw-7',
+          keyword: `${base} tại TP.HCM xưởng cơ khí`,
+          seedKeyword: base,
+          volume: 540,
+          kd: 14,
+          cpc: 7800,
+          intent: 'Local Commercial',
+          category: 'Local',
+          parentTopic: `Địa điểm chế tạo`,
+          primaryKeyword: `${base} TP.HCM`,
+          isPrimary: false,
+          topic: `Xưởng chế tạo ${titleSeed} TP.HCM`,
+          pillar: `Báo Giá & Xưởng Chế Tạo Theo Yêu Cầu`,
+          cluster: `Gia công xưởng tại TP.HCM & Miền Nam`,
+          isLocal: true,
+          isBrand: false,
+          serpSimilarity: 84,
+          opportunityScore: 91,
+          businessRelevance: 97,
+          funnelStage: 'BOFU',
+          priority: 'P1',
+          dataSource: 'AI ESTIMATE',
+          confidence: 'High',
+          suggestedContentType: 'Local Landing Page',
+          suggestedUrl: `/${slugBase}-tphcm`,
+        },
+      ];
+
+      // Pillars & Clusters
+      const pillars = [
+        {
+          id: 'p-1',
+          pillar: `Hệ thống ${titleSeed} & Dây Chuyền Tự Động`,
+          cluster: `Các loại ${titleSeed} công nghiệp`,
+          primaryKeyword: base,
+          intent: 'Commercial Investigation',
+          contentType: 'Pillar page',
+          suggestedUrl: `/${slugBase}`,
+          internalLinkTo: ['/'],
+          internalLinkFrom: ['/'],
+          businessRelevance: 100,
+          priority: 'P1',
+        },
+        {
+          id: 'p-2',
+          pillar: `Hệ thống ${titleSeed} & Dây Chuyền Tự Động`,
+          cluster: `Vật liệu Inox 304 & Tiêu chuẩn vi sinh`,
+          primaryKeyword: `${base} inox 304`,
+          intent: 'Commercial Investigation',
+          contentType: 'Product page',
+          suggestedUrl: `/${slugBase}-inox-304`,
+          internalLinkTo: [`/${slugBase}`],
+          internalLinkFrom: ['/'],
+          businessRelevance: 96,
+          priority: 'P1',
+        },
+        {
+          id: 'p-3',
+          pillar: `Báo Giá & Xưởng Chế Tạo Theo Yêu Cầu`,
+          cluster: `Báo giá xưởng chế tạo máy`,
+          primaryKeyword: `báo giá ${base}`,
+          intent: 'Transactional',
+          contentType: 'Pricing Guide',
+          suggestedUrl: `/bao-gia-${slugBase}`,
+          internalLinkTo: [`/${slugBase}`],
+          internalLinkFrom: ['/'],
+          businessRelevance: 99,
+          priority: 'P1',
+        },
+        {
+          id: 'p-4',
+          pillar: `Báo Giá & Xưởng Chế Tạo Theo Yêu Cầu`,
+          cluster: `Gia công xưởng tại TP.HCM & Miền Nam`,
+          primaryKeyword: `${base} TP.HCM`,
+          intent: 'Local Commercial',
+          contentType: 'Local Landing page',
+          suggestedUrl: `/${slugBase}-tphcm`,
+          internalLinkTo: [`/${slugBase}`],
+          internalLinkFrom: ['/'],
+          businessRelevance: 95,
+          priority: 'P1',
+        },
+      ];
+
+      // Content Map
+      const contentMap = [
+        {
+          contentId: 'CNT-01',
+          pillar: `Hệ thống ${titleSeed} & Dây Chuyền Tự Động`,
+          cluster: `Các loại ${titleSeed} công nghiệp`,
+          topic: `Tổng quan & Cẩm nang ${titleSeed}`,
+          primaryKeyword: base,
+          secondaryKeywords: [`các loại ${base}`, `cấu tạo ${base}`],
+          intent: 'Commercial Investigation',
+          contentType: 'Pillar page',
+          suggestedTitle: `${titleSeed} Công Nghiệp: Cẩm Nang Lựa Chọn & Tiêu Chuẩn Xưởng`,
+          suggestedUrl: `/${slugBase}`,
+          priority: 'P1',
+          funnelStage: 'MOFU',
+          internalLinksTo: [`/bao-gia-${slugBase}`],
+          internalLinksFrom: ['/'],
+          status: 'Chưa viết',
+          cannibalizationRisk: 'None',
+        },
+        {
+          contentId: 'CNT-02',
+          pillar: `Báo Giá & Xưởng Chế Tạo Theo Yêu Cầu`,
+          cluster: `Báo giá xưởng chế tạo máy`,
+          topic: `Bảng giá gia công ${titleSeed}`,
+          primaryKeyword: `báo giá ${base}`,
+          secondaryKeywords: [`giá ${base} tại xưởng`, `chi phí chế tạo ${base}`],
+          intent: 'Transactional',
+          contentType: 'Product page',
+          suggestedTitle: `Báo Giá ${titleSeed} Tại Xưởng Cơ Khí: Tiết Kiệm 20% Chi Phí`,
+          suggestedUrl: `/bao-gia-${slugBase}`,
+          priority: 'P1',
+          funnelStage: 'BOFU',
+          internalLinksTo: [`/${slugBase}`],
+          internalLinksFrom: [`/${slugBase}`],
+          status: 'Chưa viết',
+          cannibalizationRisk: 'None',
+        },
+      ];
+
+      // Semantic SEO Report (8-Pillar Entity-First)
+      const semanticReport = {
+        primaryTopic: `Chiến Lược Topical Authority: ${titleSeed} B2B`,
+        primaryKeyword: base,
+        searchIntent: 'Commercial Investigation',
+        targetAudience: 'Giám đốc kỹ thuật, Trưởng phòng cơ điện, Chủ xưởng sản xuất chế biến',
+        coreSubject: `Hệ thống giải pháp và thiết bị ${base} chuyên dụng trong dây chuyền sản xuất công nghiệp, đảm bảo chống bám dính, định lượng chính xác và tiêu chuẩn an toàn vi sinh.`,
+        mainEntities: [
+          { name: `Inox 304 / 316L`, category: 'Thuộc tính', relevance: 98, importance: 'Core', description: 'Vật liệu thép không gỉ xử lý bề mặt sáng bóng chống bám dính nguyên liệu' },
+          { name: `Động cơ rung đầm phá vòm`, category: 'Thành phần', relevance: 96, importance: 'Core', description: 'Cụm tạo rung ngăn chặn hiện tượng tạo vòm kẹt nguyên liệu bột' },
+          { name: `Tiêu chuẩn an toàn HACCP & GMP`, category: 'Phương pháp', relevance: 95, importance: 'Core', description: 'Quy chuẩn an toàn chế tạo máy tiếp xúc thực phẩm' },
+          { name: `Biến tần điều tốc Schneider`, category: 'Công cụ', relevance: 92, importance: 'Supporting', description: 'Bộ điều khiển dải tốc độ cấp liệu liên tục vô cấp' },
+          { name: `Cảm biến báo mức min/max`, category: 'Thành phần', relevance: 90, importance: 'Supporting', description: 'Tự động báo nạp liệu và ngắt chống tràn phễu' },
+          { name: `Máy đóng gói tự động`, category: 'Sản phẩm / Dịch vụ', relevance: 88, importance: 'Contextual', description: 'Hệ thống liền kề nhận liệu từ phễu cấp' },
+        ],
+        relatedEntities: [
+          { name: 'Xưởng cơ khí chế tạo máy TP.HCM & Đồng Nai', category: 'Địa điểm', relevance: 89, importance: 'Contextual', description: 'Khu vực tập trung nhà máy chế tạo máy B2B uy tín' },
+          { name: 'Khảo sát lắp đặt layout xưởng', category: 'Sản phẩm / Dịch vụ', relevance: 91, importance: 'Supporting', description: 'Dịch vụ kỹ thuật đo đạc tận nơi' },
+        ],
+        semanticRelationships: [
+          { sourceEntity: `${titleSeed}`, relationType: 'A là gì (Định nghĩa)', targetEntity: 'Thiết bị công nghiệp', statement: `Là thiết bị cơ khí chứa và cấp liệu tự động, kiểm soát lưu lượng dòng chảy nguyên vật liệu vào dây chuyền.` },
+          { sourceEntity: `${titleSeed}`, relationType: 'A gồm thành phần nào (Cấu tạo)', targetEntity: 'Thùng Inox, Cụm rung, Tủ điện', statement: `Gồm thùng chứa Inox 304 chấn CNC, động cơ rung, khung chân chịu lực và tủ điện điều khiển.` },
+          { sourceEntity: `${titleSeed}`, relationType: 'Khi nào nên sử dụng A (Trường hợp ứng dụng)', targetEntity: 'Dây chuyền tự động', statement: `Bắt buộc ứng dụng khi muốn triệt tiêu thao tác bốc đổ thủ công và chống hao hụt nguyên liệu bột hạt.` },
+          { sourceEntity: `${titleSeed}`, relationType: 'A khác B ở điểm nào (So sánh đối chuẩn)', targetEntity: 'Phễu thủ công', statement: `Khác biệt ở hệ thống chống bám dính tự động, độ chính xác định lượng và chuẩn vệ sinh công nghiệp.` },
+        ],
+        naturalRelatedTerms: [
+          { term: 'phá vòm nguyên liệu', usageContext: 'Xử lý tắc nghẽn bột ẩm', importance: 'Cốt lõi' },
+          { term: 'lưu lượng cấp liệu kg/h', usageContext: 'Tính toán công suất dây chuyền', importance: 'Quan trọng' },
+          { term: 'góc nghiêng phễu thoát liệu', usageContext: 'Thiết kế cơ khí tiêu chuẩn', importance: 'Quan trọng' },
+        ],
+        mainSubtopics: [
+          { title: `Nguyên lý cơ học chống nghẽn và định lượng`, entitiesCovered: ['Cụm rung', 'Biến tần'], purpose: 'Giải thích tính hiệu quả kinh tế cho chủ xưởng' },
+          { title: `Tiêu chuẩn vật liệu Inox vi sinh`, entitiesCovered: ['Inox 304', 'HACCP'], purpose: 'Đảm bảo yêu cầu kiểm định nhà nước và xuất khẩu' },
+        ],
+        relatedQuestions: [
+          { question: `Làm sao để phễu không bị bết dính khi nạp bột ẩm?`, entityFocus: 'Motor rung', briefAnswer: `Lắp động cơ rung điều chỉnh lực và lót bề mặt chống dính đặc biệt.` },
+          { question: `Thời gian gia công ${base} theo bản vẽ mất bao lâu?`, entityFocus: 'Xưởng chế tạo', briefAnswer: `Thông thường từ 7 - 10 ngày làm việc tại xưởng.` },
+        ],
+        contentGaps: [
+          `Thiếu số liệu so sánh ROI hoàn vốn giữa cấp liệu thủ công và tự động hóa`,
+          `Chưa phân tích chi tiết tiêu chuẩn mối hàn Inox vi sinh chống nhiễm khuẩn`,
+        ],
+        suggestedContentStructure: [
+          { heading: `1. Tổng quan & Sự cần thiết trong nhà máy`, entitiesIncluded: [`${titleSeed}`], objective: 'Định hình vai trò' },
+          { heading: `2. Cấu tạo chi tiết & Nguyên lý chống nghẽn`, entitiesIncluded: ['Inox 304', 'Motor rung'], objective: 'Chứng minh năng lực kỹ thuật' },
+          { heading: `3. Bảng báo giá xưởng & Quy trình đặt hàng`, entitiesIncluded: ['Báo giá'], objective: 'Thúc đẩy chuyển đổi B2B' },
+        ],
+      };
+
+      // SEO Outline
+      const outline = {
+        seoTitle: `${titleSeed}: Báo Giá Xưởng & Tiêu Chuẩn Kỹ Thuật 2026`,
+        metaTitle: `${titleSeed} B2B - Thiết Kế Theo Yêu Cầu, Giá Xưởng Tiết Kiệm 20%`,
+        metaDescription: `Cung cấp ${base} công nghiệp chuẩn Inox 304. Gia công theo bản vẽ, độ bền cao, bảo hành 18 tháng. Khảo sát tận xưởng và báo giá chi tiết ngay!`,
+        slug: slugBase,
+        h1: `Cẩm Nang Kỹ Thuật & Báo Giá ${titleSeed} Cho Nhà Máy Công Nghiệp`,
+        sapo: `Trong các dây chuyền sản xuất hiện đại, ${base} đóng vai trò then chốt giúp tối ưu hóa lưu lượng luân chuyển nguyên vật liệu, giảm thiểu thời gian chờ và triệt tiêu rủi ro hao hụt do thao tác thủ công. Bài viết này tổng hợp toàn diện các thông số cơ khí chuẩn, kinh nghiệm lựa chọn vật liệu Inox và bảng dự toán chi phí thực tế tại xưởng chế tạo uy tín.`,
+        headings: [
+          {
+            level: 'H2',
+            title: `1. Tổng Quan & Vai Trò Của ${titleSeed} Trong Dây Chuyền Sản Xuất`,
+            targetKeywords: [base, `${base} là gì`],
+            intentTarget: 'Nắm vững vai trò, vị trí và hiệu quả kinh tế khi đầu tư',
+            keyPoints: [
+              `Khái niệm và nguyên lý cấp liệu liên tục trong quy trình sản xuất`,
+              `So sánh hiệu suất giữa vận hành thủ công và tự động hóa bằng ${base}`,
+              `Các ngành sản xuất bắt buộc phải áp dụng: thực phẩm, dược phẩm, hóa chất`,
+            ],
+            subheadings: [
+              {
+                level: 'H3',
+                title: `Cơ chế chống nghẽn và duy trì dòng chảy nguyên liệu ổn định`,
+                keyPoints: [
+                  `Cụm motor rung điều chỉnh tần số phá vỡ vòm tắc nghẽn hiệu quả`,
+                  `Cảm biến báo mức ngắt tự động chống tràn nguyên liệu ra sàn xưởng`,
+                ],
+              },
+            ],
+          },
+          {
+            level: 'H2',
+            title: `2. Cấu Tạo Cơ Khí Tiêu Chuẩn & Lựa Chọn Vật Liệu Inox 304`,
+            targetKeywords: [`cấu tạo ${base}`, `thông số kỹ thuật ${base}`],
+            intentTarget: 'Đánh giá độ bền, vật liệu gia công và khả năng tương thích xưởng',
+            keyPoints: [
+              `Khung sườn và thân phễu bằng Inox 304 chấn CNC dày 2.0 - 3.0mm`,
+              `Mối hàn TIG xử lý mài nhẵn đánh bóng xước hairline đạt chuẩn vi sinh`,
+              `Van xả đáy dạng cánh bướm hoặc khí nén đóng mở linh hoạt`,
+            ],
+            subheadings: [
+              {
+                level: 'H3',
+                title: `Chi tiết kỹ thuật cụm động cơ giảm tốc & biến tần điều khiển`,
+                keyPoints: [
+                  `Động cơ xuất xứ Đài Loan / Nhật Bản cấp bảo vệ IP55 chống bụi nước`,
+                  `Tủ điện tích hợp aptomat chống giật, rơ-le nhiệt và nút dừng khẩn cấp E-Stop`,
+                ],
+              },
+            ],
+          },
+          {
+            level: 'H2',
+            title: `3. Bảng Báo Giá Gia Công Theo Yêu Cầu Tại Xưởng Cơ Khí`,
+            targetKeywords: [`báo giá ${base}`, `giá ${base} tại xưởng`],
+            intentTarget: 'Dự toán ngân sách đầu tư chính xác và tránh phát sinh chi phí',
+            keyPoints: [
+              `Báo giá chi tiết theo dung tích (50L, 100L, 200L, 500L) và công suất`,
+              `Yếu tố vật liệu: sự khác biệt chi phí giữa Thép SS400, Inox 201, 304 và 316`,
+              `Chính sách vận chuyển, lắp đặt tận xưởng và bàn giao chạy thử nguyên liệu`,
+            ],
+            subheadings: [
+              {
+                level: 'H3',
+                title: `Tiến độ chế tạo và chính sách bảo hành 18 tháng`,
+                keyPoints: [
+                  `Thời gian gia công nhanh chóng từ 7 - 12 ngày làm việc`,
+                  `Hỗ trợ kỹ thuật tại chỗ trong vòng 2 - 4 giờ khi có sự cố`,
+                ],
+              },
+            ],
+          },
+        ],
+        technicalSpecsTable: [
+          { parameter: 'Vật liệu chế tạo thân phễu', recommended: 'Inox 304 dày 2.5mm - 3.0mm', note: 'Đánh bóng vi sinh Ra ≤ 0.8µm' },
+          { parameter: 'Động cơ rung phá vòm', recommended: '0.37kW - 1.5kW (3 pha 380V)', note: 'Điều chỉnh lực rung theo loại nguyên liệu' },
+          { parameter: 'Dung tích chứa tiêu chuẩn', recommended: '50L - 1000L theo layout xưởng', note: 'Thiết kế góc dốc đáy 60° thoát liệu êm' },
+          { parameter: 'Hệ thống điều khiển điện', recommended: 'Biến tần Schneider / Mitsubishi', note: 'Tích hợp cảm biến mức và dừng khẩn cấp' },
+        ],
+        faq: [
+          {
+            question: `Xưởng có hỗ trợ khảo sát tận nơi để thiết kế ${base} theo layout riêng không?`,
+            answer: `Có. Đội ngũ kỹ sư cơ khí sẽ đến khảo sát hiện trường nhà máy trong vòng 24 giờ, đo đạc layout và xuất bản vẽ 3D hoàn toàn miễn phí.`,
+          },
+          {
+            question: `Thời gian hoàn thiện đơn hàng chế tạo ${base} mất bao lâu?`,
+            answer: `Từ 7 - 12 ngày đối với model tiêu chuẩn và 15 ngày đối với hệ thống dây chuyền tích hợp tự động hóa phức tạp.`,
+          },
+        ],
+        callToAction: {
+          primary: `Đăng ký khảo sát mặt bằng & Nhận bản vẽ 3D ${base} miễn phí`,
+          secondary: `Tải catalogue và bảng báo giá xưởng chi tiết 2026`,
+          placement: `Giữa bài (sau phần cấu tạo kỹ thuật) và Cuối bài viết`,
+        },
+        primaryKeyword: base,
+        secondaryKeywords: [`báo giá ${base}`, `cấu tạo ${base}`, `xưởng chế tạo ${base}`],
+        semanticEntities: ['Inox 304', 'Chuẩn vi sinh HACCP', 'Motor rung', 'Biến tần Schneider'],
+        internalLinks: [
+          { anchorText: `hệ thống ${base} tự động`, targetUrl: `/${slugBase}`, reason: 'Củng cố trang Pillar trung tâm' },
+          { anchorText: 'xưởng cơ khí chế tạo máy uy tín', targetUrl: '/xuong-gia-cong-co-khi', reason: 'Điều hướng trang hồ sơ năng lực' },
+        ],
+        sourcesAndStandards: ['TCVN 6554:2018', 'Tiêu chuẩn an toàn FDA 21 CFR', 'ISO 22000 / HACCP'],
+      };
+
+      // Competitor Gap
+      const competitorGap = {
+        summary: `Phân tích khoảng trống chủ đề đối thủ trong ngành ${base}`,
+        missingTopics: [
+          { topic: `So sánh chi phí phễu Inox 304 và Thép sơn tĩnh điện`, pillar: `Báo Giá & Chi Phí`, searchIntent: 'Commercial Investigation', priority: 'P1', competitorEdge: 'Đối thủ đã có bài viết phân tích sâu tuổi thọ vật liệu', recommendedAction: 'Viết bài phân tích chi tiết kèm bảng tính ROI' },
+          { topic: `Khắc phục sự cố tạo vòm kẹt nguyên liệu bột mịn`, pillar: `Kiến Thức Kỹ Thuật`, searchIntent: 'Informational', priority: 'P2', competitorEdge: 'Các diễn đàn cơ khí thảo luận nhiều nhưng thiếu giải pháp thực tế', recommendedAction: 'Xây dựng video thực tế và hướng dẫn cân chỉnh motor rung' },
+        ],
+        keywordGaps: [
+          { keyword: `giá phễu rung cấp liệu tự động`, intent: 'Transactional', estimatedDifficulty: 'Medium', relevance: 95, suggestedTitle: `Báo Giá Phễu Rung Cấp Liệu Tự Động Giá Xưởng 2026` },
+        ],
+        structureRecommendations: [
+          `Xây dựng Silo chuyên sâu cho dòng sản phẩm phễu cấp liệu inox`,
+          `Bổ sung bảng tính dung tích và công suất tương ứng với từng loại nguyên liệu`,
+        ],
+      };
+
+      return {
+        matrix,
+        keywords,
+        pillars,
+        contentMap,
+        semanticReport,
+        outline,
+        competitorGap,
+      };
+    }
+
+    // --- MAIN REACT APPLICATION ---
+    function App() {
+      const [seedKeyword, setSeedKeyword] = useState('phễu cấp liệu');
+      const [activeTab, setActiveTab] = useState('matrix');
+      const [isLoading, setIsLoading] = useState(false);
+
+      // Data states
+      const initialData = useMemo(() => generateB2bDataset('phễu cấp liệu'), []);
+      const [matrix, setMatrix] = useState(initialData.matrix);
+      const [keywords, setKeywords] = useState(initialData.keywords);
+      const [pillars, setPillars] = useState(initialData.pillars);
+      const [contentMap, setContentMap] = useState(initialData.contentMap);
+      const [semanticReport, setSemanticReport] = useState(initialData.semanticReport);
+      const [outline, setOutline] = useState(initialData.outline);
+      const [competitorGap, setCompetitorGap] = useState(initialData.competitorGap);
+
+      // Search & Input state
+      const [searchQuery, setSearchQuery] = useState('');
+      const [newSeedInput, setNewSeedInput] = useState('');
+
+      // Run new research
+      const handleRunResearch = (targetSeed) => {
+        const seed = (targetSeed || newSeedInput || seedKeyword).trim();
+        if (!seed) return;
+        setIsLoading(true);
+        setTimeout(() => {
+          const newData = generateB2bDataset(seed);
+          setSeedKeyword(seed);
+          setMatrix(newData.matrix);
+          setKeywords(newData.keywords);
+          setPillars(newData.pillars);
+          setContentMap(newData.contentMap);
+          setSemanticReport(newData.semanticReport);
+          setOutline(newData.outline);
+          setCompetitorGap(newData.competitorGap);
+          setIsLoading(false);
+          setActiveTab('matrix');
+        }, 350);
+      };
+
+      // Add item to 9D matrix & sync
+      const handleAddMatrixItem = (colKey, text) => {
+        if (!text || !text.trim()) return;
+        const term = text.trim();
+        setMatrix(prev => ({
+          ...prev,
+          [colKey]: [...(prev[colKey] || []), term]
+        }));
+
+        // Add to keywords
+        const newKw = {
+          id: `kw-${Date.now()}`,
+          keyword: `${seedKeyword} ${term}`,
+          seedKeyword: seedKeyword,
+          volume: Math.floor(Math.random() * 800) + 200,
+          kd: Math.floor(Math.random() * 20) + 10,
+          cpc: 6000,
+          intent: 'Commercial Investigation',
+          category: 'Biến thể',
+          parentTopic: `Cụm ${term}`,
+          primaryKeyword: `${seedKeyword} ${term}`,
+          isPrimary: false,
+          topic: `Giải pháp ${term}`,
+          pillar: pillars[0]?.pillar || `Hệ thống ${seedKeyword}`,
+          cluster: `Cụm ${term}`,
+          isLocal: colKey === 'locations',
+          isBrand: colKey === 'brands',
+          serpSimilarity: 85,
+          opportunityScore: 92,
+          businessRelevance: 95,
+          funnelStage: 'MOFU',
+          priority: 'P1',
+          dataSource: 'AI ESTIMATE',
+          confidence: 'High',
+          suggestedContentType: 'Product Page',
+          suggestedUrl: `/${seedKeyword.replace(/\s+/g, '-')}-${term.replace(/\s+/g, '-')}`,
+        };
+        setKeywords(prev => [newKw, ...prev]);
+      };
+
+      // Delete item from matrix
+      const handleDeleteMatrixItem = (colKey, term) => {
+        setMatrix(prev => ({
+          ...prev,
+          [colKey]: (prev[colKey] || []).filter(t => t !== term)
+        }));
+      };
+
+      // Generate Auto Combinations in 9D matrix
+      const handleGenerateCombinations = () => {
+        const variants = (matrix.productVariants || []).slice(0, 2);
+        const specs = (matrix.specifications || []).slice(0, 2);
+        const locs = (matrix.locations || []).slice(0, 2);
+        variants.forEach(v => {
+          specs.forEach(s => handleAddMatrixItem('productVariants', `${v} ${s.replace(seedKeyword, '').trim()}`));
+          locs.forEach(l => handleAddMatrixItem('productVariants', `${v} ${l.replace(seedKeyword, '').trim()}`));
+        });
+      };
+
+      // Export helper
+      const downloadFile = (content, filename, type) => {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      };
+
+      const exportCSV = (data, filename) => {
+        if (!data || !data.length) return;
+        const headers = Object.keys(data[0]);
+        const csvRows = [headers.join(',')];
+        data.forEach(row => {
+          const values = headers.map(h => {
+            const val = row[h];
+            if (Array.isArray(val)) return `"${val.join('; ')}"`;
+            return `"${String(val ?? '').replace(/"/g, '""')}"`;
+          });
+          csvRows.push(values.join(','));
+        });
+        downloadFile('\uFEFF' + csvRows.join('\n'), `${filename}.csv`, 'text/csv;charset=utf-8;');
+      };
+
+      // Navigation counts
+      const counts = {
+        keywords: keywords.length,
+        pillars: pillars.length,
+        contentMap: contentMap.length,
+        matrixTotal: Object.values(matrix).reduce((acc, curr) => acc + curr.length, 0),
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col font-sans">
+          {/* HEADER */}
+          <header className="bg-slate-900 text-white px-5 py-3.5 border-b border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-50 shadow-md">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center font-black text-white shadow-sm">
+                B2B
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h1 className="font-extrabold text-sm sm:text-base tracking-tight text-white">
+                    SEO Keymap & Technical Semantic AI Studio
+                  </h1>
+                  <span className="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 text-[10px] font-bold border border-blue-400/30">
+                    Standalone Bundle
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-slate-400">
+                  <span>Chủ đề chính:</span>
+                  <span className="font-bold text-amber-300">"{seedKeyword}"</span>
+                  <span>•</span>
+                  <span>{keywords.length} từ khóa chuẩn B2B</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center bg-slate-800 rounded-lg px-2.5 py-1.5 border border-slate-700">
+                <Icon name="search" className="w-3.5 h-3.5 text-slate-400 mr-2" />
+                <input
+                  type="text"
+                  value={newSeedInput}
+                  onChange={(e) => setNewSeedInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleRunResearch()}
+                  placeholder="Nghiên cứu từ khóa mới..."
+                  className="bg-transparent text-xs text-white placeholder:text-slate-500 focus:outline-none w-36 sm:w-48"
+                />
+                <button
+                  onClick={() => handleRunResearch()}
+                  className="px-2 py-0.5 bg-blue-600 hover:bg-blue-500 text-white text-[11px] font-bold rounded"
+                >
+                  Khám phá
+                </button>
+              </div>
+
+              <button
+                onClick={() => exportCSV(keywords, `Keywords_${seedKeyword}`)}
+                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                title="Xuất bảng từ khóa CSV"
+              >
+                <Icon name="download" className="w-3.5 h-3.5 text-blue-400" />
+                <span>Xuất CSV</span>
+              </button>
+            </div>
+          </header>
+
+          {/* MAIN WORKSPACE */}
+          <div className="flex flex-1 overflow-hidden">
+            {/* SIDEBAR */}
+            <aside className="w-64 bg-white border-r border-slate-200 p-3 flex flex-col justify-between shrink-0 overflow-y-auto">
+              <div className="space-y-1">
+                <div className="px-3 py-1.5 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                  Nghiên Cứu & Chiến Lược
+                </div>
+
+                <button
+                  onClick={() => setActiveTab('matrix')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                    activeTab === 'matrix' ? 'bg-blue-50 text-blue-700 font-extrabold' : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon name="layers" className="w-4 h-4 text-blue-600" />
+                    <span>Ma Trận Từ Khóa 9D</span>
+                  </div>
+                  <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full">
+                    {counts.matrixTotal}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('semanticlsi')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                    activeTab === 'semanticlsi' ? 'bg-blue-50 text-blue-700 font-extrabold' : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon name="network" className="w-4 h-4 text-indigo-600" />
+                    <span>Semantic SEO & Thực Thể</span>
+                  </div>
+                  <span className="text-[10px] bg-indigo-100 text-indigo-800 px-1.5 py-0.5 rounded-full">
+                    8 Trụ Cột
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('outline')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                    activeTab === 'outline' ? 'bg-blue-50 text-blue-700 font-extrabold' : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon name="fileText" className="w-4 h-4 text-emerald-600" />
+                    <span>Trình Tạo Dàn Ý (Outline)</span>
+                  </div>
+                  <span className="text-[10px] bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded-full">
+                    2 Chế Độ
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('keywords')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                    activeTab === 'keywords' ? 'bg-blue-50 text-blue-700 font-extrabold' : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon name="database" className="w-4 h-4 text-amber-600" />
+                    <span>Danh Sách Từ Khóa</span>
+                  </div>
+                  <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded-full">
+                    {counts.keywords}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('pillar')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                    activeTab === 'pillar' ? 'bg-blue-50 text-blue-700 font-extrabold' : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon name="layout" className="w-4 h-4 text-purple-600" />
+                    <span>Trụ Cột (Pillar - Cluster)</span>
+                  </div>
+                  <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded-full">
+                    {counts.pillars}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('contentmap')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                    activeTab === 'contentmap' ? 'bg-blue-50 text-blue-700 font-extrabold' : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon name="target" className="w-4 h-4 text-rose-600" />
+                    <span>Kế Hoạch Nội Dung</span>
+                  </div>
+                  <span className="text-[10px] bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded-full">
+                    {counts.contentMap}
+                  </span>
+                </button>
+
+                <div className="pt-3 px-3 py-1 text-[10px] font-extrabold uppercase text-slate-400 tracking-wider">
+                  Công Cụ Xuất Dữ Liệu
+                </div>
+
+                <button
+                  onClick={() => setActiveTab('export')}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                    activeTab === 'export' ? 'bg-blue-50 text-blue-700 font-extrabold' : 'text-slate-600 hover:bg-slate-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Icon name="download" className="w-4 h-4 text-blue-600" />
+                    <span>Xuất Toàn Bộ Dự Án</span>
+                  </div>
+                  <span className="text-[10px] bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full">
+                    Excel/JSON
+                  </span>
+                </button>
+              </div>
+
+              {/* Standalone badge */}
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
+                <div className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <Icon name="shieldCheck" className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Single-File HTML</span>
+                </div>
+                <p className="text-[10px] text-slate-500 leading-tight">
+                  Tập tin chứa 100% mã nguồn HTML, Tailwind CSS và React JS. Chạy được trực tiếp trên bất kỳ trình duyệt hay web server nào.
+                </p>
+              </div>
+            </aside>
+
+            {/* VIEW CONTENT */}
+            <main className="flex-1 overflow-y-auto p-6 bg-slate-100/70">
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center py-24 space-y-3">
+                  <Icon name="refreshCw" className="w-8 h-8 text-blue-600 animate-spin" />
+                  <div className="text-sm font-bold text-slate-700">Đang nghiên cứu và đồng bộ toàn bộ dữ liệu...</div>
+                </div>
+              ) : (
+                <>
+                  {/* TAB 1: MA TRẬN 9D */}
+                  {activeTab === 'matrix' && (
+                    <div className="space-y-5 animate-fadeIn max-w-7xl mx-auto">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200 mb-1">
+                            <Icon name="layers" className="w-3.5 h-3.5" />
+                            9-Dimensional Keyword Matrix
+                          </div>
+                          <h2 className="text-xl font-black text-slate-900">Ma Trận Từ Khóa 9 Chiều (Keyword Matrix 9D)</h2>
+                          <p className="text-xs text-slate-500">
+                            Thêm từ khóa vào bất kỳ cột nào sẽ tự động đồng bộ sang Danh sách từ khóa, Kiến trúc Pillar-Cluster và Kế hoạch nội dung.
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleGenerateCombinations}
+                          className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl text-xs font-bold flex items-center gap-2 shadow-sm transition-all"
+                        >
+                          <Icon name="sparkles" className="w-4 h-4 text-amber-300" />
+                          <span>Sinh Từ Khóa Tổ Hợp (Variant × Spec × Loc)</span>
+                        </button>
+                      </div>
+
+                      {/* 9 COLUMNS GRID */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {[
+                          { key: 'productVariants', label: '1. Biến Thể Sản Phẩm (Variants)', color: 'blue' },
+                          { key: 'semanticKeywords', label: '2. Ngữ Nghĩa / LSI Kỹ Thuật', color: 'indigo' },
+                          { key: 'specifications', label: '3. Đặc Điểm & Thông Số (Specs)', color: 'emerald' },
+                          { key: 'painPoints', label: '4. Nỗi Đau Khách Hàng (Pain Points)', color: 'rose' },
+                          { key: 'solutions', label: '5. Giải Pháp Kỹ Thuật (Solutions)', color: 'teal' },
+                          { key: 'integratedEquipment', label: '6. Thiết Bị Tích Hợp (Equipment)', color: 'purple' },
+                          { key: 'industries', label: '7. Ngành Ứng Dụng (Industries)', color: 'amber' },
+                          { key: 'locations', label: '8. Địa Lý & Khu Vực (Locations)', color: 'cyan' },
+                          { key: 'brands', label: '9. Thương Hiệu & Xưởng (Brands)', color: 'slate' },
+                        ].map((col) => {
+                          const items = matrix[col.key] || [];
+                          return (
+                            <div key={col.key} className="bg-white rounded-2xl border border-slate-200 p-4 shadow-2xs space-y-3">
+                              <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                                <span className="font-extrabold text-xs text-slate-800">{col.label}</span>
+                                <span className="text-[10px] font-mono px-2 py-0.5 bg-slate-100 rounded-full font-bold text-slate-600">
+                                  {items.length}
+                                </span>
+                              </div>
+
+                              {/* Input to add */}
+                              <div className="flex items-center gap-1.5">
+                                <input
+                                  type="text"
+                                  placeholder={`+ Thêm vào ${col.label.split(' ')[1]}...`}
+                                  onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                      handleAddMatrixItem(col.key, e.target.value);
+                                      e.target.value = '';
+                                    }
+                                  }}
+                                  className="flex-1 px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                                />
+                              </div>
+
+                              {/* Items list */}
+                              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
+                                {items.map((it, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="group flex items-center justify-between p-2 rounded-lg bg-slate-50 hover:bg-blue-50/50 border border-slate-100 text-xs text-slate-700 transition-colors"
+                                  >
+                                    <span className="truncate pr-2">{it}</span>
+                                    <button
+                                      onClick={() => handleDeleteMatrixItem(col.key, it)}
+                                      className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-rose-600 transition-opacity"
+                                      title="Xóa"
+                                    >
+                                      <Icon name="trash" className="w-3 h-3" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 2: SEMANTIC SEO & LSI */}
+                  {activeTab === 'semanticlsi' && (
+                    <div className="space-y-5 animate-fadeIn max-w-6xl mx-auto">
+                      <div>
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold border border-indigo-200 mb-1">
+                          <Icon name="network" className="w-3.5 h-3.5" />
+                          Entity-First Semantic SEO (8 Trụ Cột Chuyên Sâu)
+                        </div>
+                        <h2 className="text-xl font-black text-slate-900">Bản Đồ Thực Thể Ngữ Nghĩa (Knowledge Graph)</h2>
+                        <p className="text-xs text-slate-500">
+                          Xây dựng nội dung bao phủ toàn bộ chủ đề, thực thể, mối quan hệ logic và giải quyết triệt để Search Intent của người tìm kiếm B2B.
+                        </p>
+                      </div>
+
+                      {/* Pillar 1 & 2: Core Subject & Entities */}
+                      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-4">
+                        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+                          <div>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Trụ Cột 1: Chủ Đề Gốc & Thực Thể Trọng Tâm</span>
+                            <h3 className="text-base font-bold text-slate-900">{semanticReport.primaryTopic}</h3>
+                          </div>
+                          <span className="px-2.5 py-1 bg-indigo-50 text-indigo-700 rounded-lg text-xs font-bold border border-indigo-200">
+                            Intent: {semanticReport.searchIntent}
+                          </span>
+                        </div>
+
+                        <p className="text-xs text-slate-600 italic bg-slate-50 p-3.5 rounded-xl border border-slate-200/70 leading-relaxed">
+                          "{semanticReport.coreSubject}"
+                        </p>
+
+                        {/* Entities list */}
+                        <div className="space-y-2 pt-2">
+                          <span className="text-xs font-bold text-slate-800">Các Thực Thể Ngữ Nghĩa Trọng Tâm (Semantic Entities):</span>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                            {semanticReport.mainEntities.map((ent, idx) => (
+                              <div key={idx} className="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                                <div className="flex items-center justify-between">
+                                  <span className="font-bold text-xs text-slate-900">{ent.name}</span>
+                                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">
+                                    {ent.category}
+                                  </span>
+                                </div>
+                                <p className="text-[11px] text-slate-500 leading-tight">{ent.description}</p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Pillar 3: Semantic Relationships */}
+                      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-3">
+                        <span className="text-xs font-bold text-slate-800">Trụ Cột 3: Mối Quan Hệ Bản Chất Giữa Các Thực Thể (Semantic Relationships)</span>
+                        <div className="space-y-2">
+                          {semanticReport.semanticRelationships.map((rel, idx) => (
+                            <div key={idx} className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                              <div>
+                                <span className="font-bold text-blue-700 mr-2">[{rel.relationType}]</span>
+                                <span className="font-semibold text-slate-800 mr-1">{rel.sourceEntity}:</span>
+                                <span className="text-slate-600">{rel.statement}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Content Gaps & Questions */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-3">
+                          <span className="text-xs font-bold text-amber-700 flex items-center gap-1.5">
+                            <Icon name="sparkles" className="w-4 h-4 text-amber-500" />
+                            Content Gaps Đối Thủ Thường Bỏ Sót
+                          </span>
+                          <ul className="space-y-2 list-disc pl-4 text-xs text-slate-600">
+                            {semanticReport.contentGaps.map((g, idx) => (
+                              <li key={idx}>{g}</li>
+                            ))}
+                          </ul>
+                        </div>
+
+                        <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-3">
+                          <span className="text-xs font-bold text-indigo-700 flex items-center gap-1.5">
+                            <Icon name="helpCircle" className="w-4 h-4 text-indigo-500" />
+                            Câu Hỏi Kỹ Thuật Người Dùng Quan Tâm
+                          </span>
+                          <div className="space-y-2">
+                            {semanticReport.relatedQuestions.map((q, idx) => (
+                              <div key={idx} className="p-2.5 bg-slate-50 rounded-lg border border-slate-200 text-xs space-y-1">
+                                <div className="font-bold text-slate-800">Q: {q.question}</div>
+                                <div className="text-slate-600 pl-3">➔ A: {q.briefAnswer}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 3: OUTLINE BUILDER (2 ALTERNATING MODES) */}
+                  {activeTab === 'outline' && (
+                    <OutlineBuilderComponent
+                      outline={outline}
+                      setOutline={setOutline}
+                      seedKeyword={seedKeyword}
+                      downloadFile={downloadFile}
+                    />
+                  )}
+
+                  {/* TAB 4: KEYWORDS LIST */}
+                  {activeTab === 'keywords' && (
+                    <div className="space-y-4 animate-fadeIn max-w-7xl mx-auto">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                          <h2 className="text-xl font-black text-slate-900">Danh Sách Từ Khóa Tổng Hợp ({keywords.length})</h2>
+                          <p className="text-xs text-slate-500">Được phân tầng theo Intent, Funnel Stage và điểm số cơ hội Opportunity Score.</p>
+                        </div>
+                        <button
+                          onClick={() => exportCSV(keywords, `Keywords_${seedKeyword}`)}
+                          className="px-3.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold flex items-center gap-2"
+                        >
+                          <Icon name="download" className="w-4 h-4" />
+                          <span>Xuất File CSV</span>
+                        </button>
+                      </div>
+
+                      <div className="bg-white rounded-2xl border border-slate-200 shadow-2xs overflow-hidden">
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-left text-xs">
+                            <thead className="bg-slate-50 text-slate-700 font-bold border-b border-slate-200">
+                              <tr>
+                                <th className="p-3">Từ khóa (Keyword)</th>
+                                <th className="p-3">Search Intent</th>
+                                <th className="p-3">Phân loại</th>
+                                <th className="p-3">Phễu B2B</th>
+                                <th className="p-3">Parent Topic</th>
+                                <th className="p-3">Opportunity Score</th>
+                                <th className="p-3">Độ liên quan</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                              {keywords.map((k) => (
+                                <tr key={k.id} className="hover:bg-slate-50/80 transition-colors">
+                                  <td className="p-3 font-bold text-slate-900">{k.keyword}</td>
+                                  <td className="p-3">
+                                    <span className="px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 font-semibold text-[10px] border border-blue-200">
+                                      {k.intent}
+                                    </span>
+                                  </td>
+                                  <td className="p-3 text-slate-600">{k.category}</td>
+                                  <td className="p-3">
+                                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                      k.funnelStage === 'BOFU' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                                    }`}>
+                                      {k.funnelStage}
+                                    </span>
+                                  </td>
+                                  <td className="p-3 text-slate-600">{k.parentTopic}</td>
+                                  <td className="p-3 font-mono font-bold text-emerald-700">{k.opportunityScore}/100</td>
+                                  <td className="p-3 text-slate-500 font-mono">{k.businessRelevance}%</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 5: PILLARS & CLUSTERS */}
+                  {activeTab === 'pillar' && (
+                    <div className="space-y-4 animate-fadeIn max-w-6xl mx-auto">
+                      <div>
+                        <h2 className="text-xl font-black text-slate-900">Kiến Trúc Trụ Cột (Pillar – Cluster Architecture)</h2>
+                        <p className="text-xs text-slate-500">Mô hình Hub-and-Spoke phân quyền Topical Authority vững chắc cho website.</p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {pillars.map((p, idx) => (
+                          <div key={idx} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs space-y-3">
+                            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+                              <span className="text-[10px] font-bold uppercase tracking-wider text-blue-600">Trụ Cột (Pillar Hub)</span>
+                              <span className="text-[10px] px-2 py-0.5 bg-slate-100 rounded font-semibold text-slate-600">
+                                {p.contentType}
+                              </span>
+                            </div>
+                            <h3 className="font-extrabold text-sm text-slate-900">{p.pillar}</h3>
+                            <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
+                              <div className="font-bold text-slate-800">Cụm chuyên sâu: {p.cluster}</div>
+                              <div className="text-slate-500">Primary Keyword: <strong className="text-blue-700">{p.primaryKeyword}</strong></div>
+                              <div className="text-slate-400 font-mono text-[11px]">URL: {p.suggestedUrl}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 6: CONTENT MAP */}
+                  {activeTab === 'contentmap' && (
+                    <div className="space-y-4 animate-fadeIn max-w-6xl mx-auto">
+                      <div>
+                        <h2 className="text-xl font-black text-slate-900">Bản Đồ Kế Hoạch Nội Dung (Content Map)</h2>
+                        <p className="text-xs text-slate-500">Lộ trình bài viết đề xuất kèm kiểm tra rủi ro Cannibalization (ăn thịt từ khóa).</p>
+                      </div>
+
+                      <div className="space-y-3">
+                        {contentMap.map((c) => (
+                          <div key={c.contentId} className="bg-white rounded-2xl border border-slate-200 p-5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <span className="px-2 py-0.5 bg-slate-900 text-white rounded text-[10px] font-mono font-bold">
+                                  {c.contentId}
+                                </span>
+                                <span className="font-bold text-slate-900 text-sm">{c.suggestedTitle}</span>
+                              </div>
+                              <div className="text-xs text-slate-500 flex items-center gap-3">
+                                <span>Trụ cột: <strong>{c.pillar}</strong></span>
+                                <span>•</span>
+                                <span>Primary: <strong className="text-blue-700">{c.primaryKeyword}</strong></span>
+                                <span>•</span>
+                                <span className="font-mono text-slate-400">{c.suggestedUrl}</span>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="px-2.5 py-1 bg-emerald-50 text-emerald-700 rounded-lg text-xs font-semibold border border-emerald-200">
+                                Rủi ro: Không có ({c.cannibalizationRisk})
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 7: EXPORT CENTER */}
+                  {activeTab === 'export' && (
+                    <div className="space-y-5 animate-fadeIn max-w-4xl mx-auto">
+                      <div>
+                        <h2 className="text-xl font-black text-slate-900">Trung Tâm Xuất Dữ Liệu Toàn Diện</h2>
+                        <p className="text-xs text-slate-500">Tải trọn bộ dữ liệu nghiên cứu về máy tính với chuẩn mã hóa UTF-8 BOM tiếng Việt.</p>
+                      </div>
+
+                      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-2xs space-y-4">
+                        <h3 className="font-bold text-sm text-slate-800">Các Tùy Chọn Tải Dữ Liệu:</h3>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <button
+                            onClick={() => exportCSV(keywords, `Keywords_${seedKeyword}`)}
+                            className="p-4 bg-slate-50 hover:bg-blue-50/50 rounded-xl border border-slate-200 text-left transition-all space-y-1"
+                          >
+                            <div className="font-bold text-xs text-slate-900 flex items-center gap-2">
+                              <Icon name="fileText" className="w-4 h-4 text-blue-600" />
+                              <span>Xuất Danh Sách Từ Khóa (.CSV)</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500">Đầy đủ {keywords.length} từ khóa, Opportunity Score và Search Intent.</p>
+                          </button>
+
+                          <button
+                            onClick={() => exportCSV(pillars, `Pillars_${seedKeyword}`)}
+                            className="p-4 bg-slate-50 hover:bg-blue-50/50 rounded-xl border border-slate-200 text-left transition-all space-y-1"
+                          >
+                            <div className="font-bold text-xs text-slate-900 flex items-center gap-2">
+                              <Icon name="layers" className="w-4 h-4 text-purple-600" />
+                              <span>Xuất Kiến Trúc Trụ Cột (.CSV)</span>
+                            </div>
+                            <p className="text-[11px] text-slate-500">Danh sách các Pillar và Cluster chuyên sâu.</p>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              const backup = {
+                                seedKeyword,
+                                matrix,
+                                keywords,
+                                pillars,
+                                contentMap,
+                                semanticReport,
+                                outline,
+                              };
+                              downloadFile(JSON.stringify(backup, null, 2), `Project_Backup_${seedKeyword}.json`, 'application/json');
+                            }}
+                            className="p-4 bg-slate-900 hover:bg-slate-800 text-white rounded-xl border border-slate-800 text-left transition-all space-y-1 col-span-1 sm:col-span-2"
+                          >
+                            <div className="font-bold text-xs text-blue-300 flex items-center gap-2">
+                              <Icon name="download" className="w-4 h-4 text-blue-400" />
+                              <span>Sao Lưu Toàn Bộ Dự Án (.JSON Backup)</span>
+                            </div>
+                            <p className="text-[11px] text-slate-400">Gói gọn toàn bộ dữ liệu gồm ma trận, outline, semantic entities và từ khóa.</p>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </main>
+          </div>
+        </div>
+      );
+    }
+
+    // --- OUTLINE BUILDER SUB-COMPONENT (DUAL MODE) ---
+    function OutlineBuilderComponent({ outline, setOutline, seedKeyword, downloadFile }) {
+      const [activeMode, setActiveMode] = useState('keyword');
+      const [customKeyword, setCustomKeyword] = useState(seedKeyword);
+      const [copiedMd, setCopiedMd] = useState(false);
+      const [isGenerating, setIsGenerating] = useState(false);
+
+      // Custom H2/H3 state
+      const [customH2List, setCustomH2List] = useState([
+        { id: '1', title: `1. Tổng quan cấu tạo & nguyên lý hoạt động của ${seedKeyword}`, subheadings: [] },
+        { id: '2', title: `2. Tiêu chuẩn kỹ thuật cơ khí & lựa chọn vật liệu Inox 304`, subheadings: [] },
+        { id: '3', title: `3. Báo giá gia công theo yêu cầu tại xưởng sản xuất`, subheadings: [] },
+        { id: '4', title: `4. Tiêu chí lựa chọn xưởng chế tạo uy tín và chế độ bảo hành`, subheadings: [] },
+      ]);
+      const [newH3Input, setNewH3Input] = useState({});
+
+      const handleAddH2 = () => {
+        setCustomH2List(prev => [
+          ...prev,
+          { id: String(Date.now()), title: `${prev.length + 1}. Tiêu đề thẻ H2 mới`, subheadings: [] }
+        ]);
+      };
+
+      const handleRemoveH2 = (id) => {
+        setCustomH2List(prev => prev.filter(h => h.id !== id));
+      };
+
+      const handleAddH3 = (h2Id) => {
+        const text = (newH3Input[h2Id] || '').trim();
+        if (!text) return;
+        setCustomH2List(prev => prev.map(h => {
+          if (h.id === h2Id) {
+            return { ...h, subheadings: [...h.subheadings, text] };
+          }
+          return h;
+        }));
+        setNewH3Input(prev => ({ ...prev, [h2Id]: '' }));
+      };
+
+      const handleRemoveH3 = (h2Id, idx) => {
+        setCustomH2List(prev => prev.map(h => {
+          if (h.id === h2Id) {
+            return { ...h, subheadings: h.subheadings.filter((_, i) => i !== idx) };
+          }
+          return h;
+        }));
+      };
+
+      // Trigger generate (simulated high quality client-side generator)
+      const handleGenerateOutline = () => {
+        setIsGenerating(true);
+        setTimeout(() => {
+          if (activeMode === 'custom_headings') {
+            // Intelligent auto-expansion of H2s into H3s and detailed points!
+            const expandedHeadings = customH2List.map(h => {
+              const autoSubs = h.subheadings.length > 0
+                ? h.subheadings.map(sub => ({
+                    level: 'H3',
+                    title: sub,
+                    keyPoints: [
+                      `Thông số kỹ thuật và vật liệu chế tạo liên quan đến ${sub}`,
+                      `Quy trình vận hành, tiêu chuẩn an toàn thực tế tại nhà xưởng`,
+                    ]
+                  }))
+                : [
+                    {
+                      level: 'H3',
+                      title: `Chi tiết kỹ thuật & Nguyên lý vận hành: ${h.title}`,
+                      keyPoints: [
+                        `Cấu tạo cơ khí, động cơ giảm tốc và vật liệu chịu tải chuyên dụng`,
+                        `Dải công suất, tốc độ điều khiển vô cấp và khả năng tích hợp dây chuyền`,
+                      ]
+                    },
+                    {
+                      level: 'H3',
+                      title: `Tiêu chuẩn nghiệm thu & Kinh nghiệm thực tế cho ${seedKeyword}`,
+                      keyPoints: [
+                        `Khảo sát mặt bằng lắp đặt, độ dốc và không gian thao tác`,
+                        `Giải pháp tối ưu điện năng tiêu thụ và giảm hao hụt nguyên vật liệu`,
+                      ]
+                    }
+                  ];
+
+              return {
+                level: 'H2',
+                title: h.title,
+                targetKeywords: [seedKeyword],
+                intentTarget: `Giải đáp chuyên sâu về ${h.title} cho kỹ sư và quản đốc`,
+                keyPoints: [
+                  `Phân tích các yếu tố kỹ thuật cốt lõi của ${h.title}`,
+                  `Giải quyết triệt để rủi ro hao hụt, kẹt liệu và gián đoạn dây chuyền`,
+                  `Khuyến nghị phương án cơ khí phù hợp với quy mô sản xuất thực tế`,
+                ],
+                subheadings: autoSubs,
+              };
+            });
+
+            setOutline(prev => ({
+              ...prev,
+              headings: expandedHeadings,
+              h1: `Cẩm Nang Kỹ Thuật & Dàn Ý Chuyên Sâu: ${seedKeyword.toUpperCase()}`,
+            }));
+          }
+          setIsGenerating(false);
+        }, 300);
+      };
+
+      const copyMarkdown = () => {
+        let md = `# ${outline.h1}\n\n`;
+        md += `**Meta Title:** ${outline.metaTitle}\n`;
+        md += `**Meta Description:** ${outline.metaDescription}\n\n`;
+        md += `## Sapo\n${outline.sapo}\n\n`;
+        outline.headings.forEach(h => {
+          md += `## ${h.title}\n`;
+          h.keyPoints?.forEach(kp => { md += `- ${kp}\n`; });
+          h.subheadings?.forEach(sub => {
+            md += `\n### ${sub.title}\n`;
+            sub.keyPoints?.forEach(skp => { md += `  - ${skp}\n`; });
+          });
+          md += `\n`;
+        });
+        navigator.clipboard.writeText(md);
+        setCopiedMd(true);
+        setTimeout(() => setCopiedMd(false), 2000);
+      };
+
+      return (
+        <div className="space-y-6 max-w-5xl mx-auto animate-fadeIn">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-200 mb-1">
+                <Icon name="fileText" className="w-3.5 h-3.5" />
+                Outline Builder (Hỗ trợ 2 Chế Độ Luân Phiên)
+              </div>
+              <h2 className="text-xl font-black text-slate-900">Trình Tạo Dàn Ý SEO B2B</h2>
+              <p className="text-xs text-slate-500">
+                Lên dàn ý từ từ khóa HOẶC tự nhập danh sách H2/H3 để AI tự động sáng tạo toàn bộ nội dung chi tiết bên dưới.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                onClick={copyMarkdown}
+                className="px-3 py-2 bg-white text-slate-700 border border-slate-200 rounded-lg text-xs font-bold hover:bg-slate-50 flex items-center gap-1.5 shadow-2xs"
+              >
+                <Icon name={copiedMd ? "check" : "copy"} className="w-3.5 h-3.5 text-blue-600" />
+                <span>{copiedMd ? 'Đã sao chép MD' : 'Sao chép Markdown'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* DUAL MODE CONTROLLER */}
+          <div className="bg-slate-900 text-white rounded-2xl p-5 shadow-md border border-slate-800 space-y-4">
+            <div className="flex items-center gap-2 p-1 bg-slate-800 rounded-xl border border-slate-700 w-fit">
+              <button
+                onClick={() => setActiveMode('keyword')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeMode === 'keyword' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Icon name="sparkles" className="w-3.5 h-3.5" />
+                <span>1. Nhập từ khóa tạo Outline</span>
+              </button>
+              <button
+                onClick={() => setActiveMode('custom_headings')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                  activeMode === 'custom_headings' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                <Icon name="penTool" className="w-3.5 h-3.5" />
+                <span>2. Tự nhập khung H2/H3 (Tự sáng tạo H3 con)</span>
+              </button>
+            </div>
+
+            {/* MODE 1 UI */}
+            {activeMode === 'keyword' && (
+              <div className="space-y-3">
+                <span className="text-xs text-blue-200 font-bold">Nhập từ khóa để tự động lên dàn ý:</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={customKeyword}
+                    onChange={(e) => setCustomKeyword(e.target.value)}
+                    placeholder="VD: phễu cấp liệu rung, băng tải inox thực phẩm..."
+                    className="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-blue-400"
+                  />
+                  <button
+                    onClick={handleGenerateOutline}
+                    disabled={isGenerating}
+                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shrink-0"
+                  >
+                    <Icon name="wand" className="w-4 h-4 text-amber-300" />
+                    <span>TẠO OUTLINE TỰ ĐỘNG</span>
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* MODE 2 UI */}
+            {activeMode === 'custom_headings' && (
+              <div className="space-y-4">
+                <div className="p-3 bg-indigo-950/80 rounded-xl border border-indigo-500/40 text-xs text-indigo-100 flex items-start gap-2">
+                  <Icon name="info" className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
+                  <div>
+                    <strong>Tính năng tự nhập H2, H3:</strong> Nếu bạn <strong>chỉ nhập thẻ H2</strong> mà để trống H3, khi bấm tạo thì hệ thống sẽ tự động phân tích và <strong>sáng tạo 2-3 thẻ H3 logic</strong> cùng toàn bộ nội dung nhỏ (key points), thông số kỹ thuật và FAQ Schema bên dưới!
+                  </div>
+                </div>
+
+                <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
+                  {customH2List.map((h2, idx) => (
+                    <div key={h2.id} className="p-3 bg-slate-800 rounded-xl border border-slate-700 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 bg-indigo-600 text-white text-[10px] rounded font-bold">H2 #{idx + 1}</span>
+                        <input
+                          type="text"
+                          value={h2.title}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setCustomH2List(prev => prev.map(item => item.id === h2.id ? { ...item, title: val } : item));
+                          }}
+                          className="flex-1 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-white font-semibold focus:outline-none"
+                        />
+                        <button
+                          onClick={() => handleRemoveH2(h2.id)}
+                          className="text-slate-400 hover:text-rose-400 p-1"
+                        >
+                          <Icon name="trash" className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Subheadings */}
+                      <div className="pl-6 space-y-1.5">
+                        {h2.subheadings.map((sub, sIdx) => (
+                          <div key={sIdx} className="flex items-center justify-between text-xs text-slate-300 bg-slate-900/60 px-2.5 py-1 rounded">
+                            <span>H3: {sub}</span>
+                            <button onClick={() => handleRemoveH3(h2.id, sIdx)} className="text-slate-500 hover:text-rose-400">×</button>
+                          </div>
+                        ))}
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={newH3Input[h2.id] || ''}
+                            onChange={(e) => setNewH3Input(prev => ({ ...prev, [h2.id]: e.target.value }))}
+                            onKeyDown={(e) => e.key === 'Enter' && handleAddH3(h2.id)}
+                            placeholder="+ Thêm H3 (hoặc để trống để AI tự sáng tạo)..."
+                            className="flex-1 px-2 py-1 rounded bg-slate-900 text-[11px] text-slate-300 border border-slate-700 focus:outline-none"
+                          />
+                          <button
+                            onClick={() => handleAddH3(h2.id)}
+                            className="px-2 py-1 bg-slate-700 hover:bg-slate-600 text-slate-200 rounded text-[11px]"
+                          >
+                            Thêm H3
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between pt-1">
+                  <button
+                    onClick={handleAddH2}
+                    className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-indigo-300 rounded-lg text-xs font-semibold border border-indigo-500/30 flex items-center gap-1.5"
+                  >
+                    <Icon name="plus" className="w-3.5 h-3.5" />
+                    <span>Thêm Thẻ H2 Mới</span>
+                  </button>
+
+                  <button
+                    onClick={handleGenerateOutline}
+                    disabled={isGenerating || customH2List.length === 0}
+                    className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 hover:from-indigo-500 hover:to-blue-500 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2"
+                  >
+                    <Icon name="sparkles" className="w-4 h-4 text-amber-300" />
+                    <span>TẠO OUTLINE TỪ DÀN Ý H2 NÀY</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* OUTLINE DISPLAY */}
+          <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6 shadow-2xs">
+            {/* Meta Tags */}
+            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SERP SNIPPET PREVIEW (GOOGLE SEARCH)</span>
+              <div className="text-xs text-slate-600 font-mono">https://chinhattu.com.vn › <strong className="text-slate-900">{outline.slug}</strong></div>
+              <h3 className="text-base font-bold text-blue-700">{outline.metaTitle}</h3>
+              <p className="text-xs text-slate-600">{outline.metaDescription}</p>
+            </div>
+
+            {/* H1 & Sapo */}
+            <div className="space-y-2 border-b border-slate-100 pb-4">
+              <span className="text-[10px] font-bold text-slate-400 uppercase">HEADING 1</span>
+              <h1 className="text-2xl font-black text-slate-900">{outline.h1}</h1>
+              <p className="text-xs text-slate-700 italic bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 leading-relaxed mt-2">
+                "{outline.sapo}"
+              </p>
+            </div>
+
+            {/* Headings */}
+            <div className="space-y-4">
+              <span className="text-xs font-extrabold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                <Icon name="layers" className="w-4 h-4 text-blue-600" />
+                <span>Cấu Trúc Thân Bài (H2 & H3)</span>
+              </span>
+
+              <div className="space-y-4">
+                {outline.headings.map((h2, idx) => (
+                  <div key={idx} className="p-4 rounded-xl border border-slate-200 bg-white space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <div className="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <span className="px-1.5 py-0.5 bg-slate-900 text-white rounded text-[10px] font-mono">H2</span>
+                        <span>{h2.title}</span>
+                      </div>
+                      {h2.intentTarget && (
+                        <span className="text-[10px] text-blue-700 bg-blue-50 px-2 py-0.5 rounded font-semibold border border-blue-200">
+                          {h2.intentTarget}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Key points */}
+                    {h2.keyPoints?.length > 0 && (
+                      <ul className="space-y-1 pl-4 list-disc text-xs text-slate-600">
+                        {h2.keyPoints.map((kp, kIdx) => (
+                          <li key={kIdx}>{kp}</li>
+                        ))}
+                      </ul>
+                    )}
+
+                    {/* Subheadings H3 */}
+                    {h2.subheadings?.map((h3, sIdx) => (
+                      <div key={sIdx} className="ml-4 p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+                        <div className="font-bold text-slate-800 text-xs flex items-center gap-1.5">
+                          <span className="px-1 py-0.2 bg-indigo-600 text-white rounded text-[9px] font-mono">H3</span>
+                          <span>{h3.title}</span>
+                        </div>
+                        {h3.keyPoints?.length > 0 && (
+                          <ul className="space-y-0.5 pl-4 list-disc text-[11px] text-slate-500">
+                            {h3.keyPoints.map((skp, skpIdx) => (
+                              <li key={skpIdx}>{skp}</li>
+                            ))}
+                          </ul>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Spec Table */}
+            {outline.technicalSpecsTable?.length > 0 && (
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Bảng Thông Số Kỹ Thuật Khuyến Nghị</span>
+                <table className="w-full text-xs text-left border border-slate-200 rounded-lg overflow-hidden">
+                  <thead className="bg-slate-50 font-bold border-b border-slate-200">
+                    <tr>
+                      <th className="p-2.5">Thông Số</th>
+                      <th className="p-2.5">Tiêu Chuẩn Khuyến Nghị</th>
+                      <th className="p-2.5">Lưu Ý</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {outline.technicalSpecsTable.map((spec, sIdx) => (
+                      <tr key={sIdx}>
+                        <td className="p-2.5 font-bold text-slate-900">{spec.parameter}</td>
+                        <td className="p-2.5 text-blue-700">{spec.recommended}</td>
+                        <td className="p-2.5 text-slate-600">{spec.note}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {/* FAQ */}
+            {outline.faq?.length > 0 && (
+              <div className="space-y-2 pt-2 border-t border-slate-100">
+                <span className="text-xs font-bold text-slate-900 uppercase tracking-wider">Câu Hỏi Thường Gặp (FAQ Schema)</span>
+                <div className="space-y-2">
+                  {outline.faq.map((f, fIdx) => (
+                    <div key={fIdx} className="p-3 bg-amber-50/40 rounded-xl border border-amber-200 text-xs space-y-1">
+                      <div className="font-bold text-slate-900">Q: {f.question}</div>
+                      <div className="text-slate-700 pl-3">A: {f.answer}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      );
+    }
+
+    // Mount to DOM
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>

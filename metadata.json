@@ -1,0 +1,6 @@
+{
+  "name": "SEO KEYMAP AI",
+  "description": "Nền tảng nghiên cứu từ khóa SEO, Topical Map, Keyword Cluster, Pillar-Cluster và Content Outline chuyên sâu B2B & Thiết bị công nghiệp",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
